@@ -1,0 +1,11 @@
+name: DominionSAR
+version: '${project.version}'
+main: cn.lunadeer.mc.dominionSAR.DominionSAR
+api-version: '1.20'
+folia-supported: true
+depend: [ Dominion ]
+softdepend:
+  - dynmap
+  - BlueMap
+  - squaremap
+  - pl3xmap
