@@ -21,7 +21,12 @@ public class SquareMap implements MapProvider {
     @Override
     public void addMarker(int id, World world, String set, String name, String subInfo, CuboidDTO cuboid, Color innerColor, Color borderColor) {
         api.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world)).ifPresent(mapWorld -> {
-            SimpleLayerProvider dominionProvider = (SimpleLayerProvider) mapWorld.layerRegistry().get(Key.of(set));
+            SimpleLayerProvider dominionProvider;
+            if (!mapWorld.layerRegistry().hasEntry(Key.of(set))) {
+                dominionProvider = SimpleLayerProvider.builder(set).build();
+            } else {
+                dominionProvider = (SimpleLayerProvider) mapWorld.layerRegistry().get(Key.of(set));
+            }
 
             Point p1 = Point.of(cuboid.x1(), cuboid.z1());
             Point p2 = Point.of(cuboid.x2(), cuboid.z2());
