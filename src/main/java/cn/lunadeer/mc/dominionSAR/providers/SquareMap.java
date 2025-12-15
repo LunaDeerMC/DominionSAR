@@ -42,7 +42,9 @@ public class SquareMap implements MapProvider {
             dominionProvider.addMarker(Key.of(name), marker);
 
             // Re-register the layer to apply changes
-            mapWorld.layerRegistry().unregister(Key.of(set));
+            if (mapWorld.layerRegistry().hasEntry(Key.of(set))) {
+                mapWorld.layerRegistry().unregister(Key.of(set));
+            }
             mapWorld.layerRegistry().register(Key.of(set), dominionProvider);
         });
     }
