@@ -18,6 +18,32 @@ public class SquareMap implements MapProvider {
         api = SquaremapProvider.get();
     }
 
+    /**
+     * Sanitize a string to be used as a SquareMap Key.
+     * SquareMap keys only allow [a-zA-Z0-9._-] characters.
+     * 
+     * @param input the input string (e.g., dominion name)
+     * @param id the dominion ID to ensure uniqueness
+     * @return a sanitized string suitable for use as a SquareMap Key
+     */
+    private String sanitizeKey(String input, int id) {
+        if (input == null || input.isEmpty()) {
+            return "dominion_" + id;
+        }
+        // Replace any character that is not [a-zA-Z0-9._-] with an underscore
+        String sanitized = input.replaceAll("[^a-zA-Z0-9._-]", "_");
+        // Collapse consecutive underscores into a single underscore
+        sanitized = sanitized.replaceAll("_+", "_");
+        // Trim leading and trailing underscores
+        sanitized = sanitized.replaceAll("^_+|_+$", "");
+        // If the result is empty, use a default prefix
+        if (sanitized.isEmpty()) {
+            sanitized = "dominion";
+        }
+        // Ensure the key is unique by appending the ID
+        return sanitized + "_" + id;
+    }
+
     @Override
     public void addMarker(int id, World world, String set, String name, String subInfo, CuboidDTO cuboid, Color innerColor, Color borderColor) {
         api.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world)).ifPresent(mapWorld -> {
@@ -38,8 +64,10 @@ public class SquareMap implements MapProvider {
 
             Marker marker = Marker.rectangle(p1, p2).markerOptions(options);
 
-            dominionProvider.removeMarker(Key.of(name));
-            dominionProvider.addMarker(Key.of(name), marker);
+            // Use sanitized key to avoid IllegalArgumentException with non-ASCII characters
+            String sanitizedKey = sanitizeKey(name, id);
+            dominionProvider.removeMarker(Key.of(sanitizedKey));
+            dominionProvider.addMarker(Key.of(sanitizedKey), marker);
 
             // Re-register the layer to apply changes
             if (mapWorld.layerRegistry().hasEntry(Key.of(set))) {
@@ -53,7 +81,9 @@ public class SquareMap implements MapProvider {
     public void removeMarker(int id, World world, String set, String name) {
         api.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world)).ifPresent(mapWorld -> {
             SimpleLayerProvider dominionProvider = (SimpleLayerProvider) mapWorld.layerRegistry().get(Key.of(set));
-            dominionProvider.removeMarker(Key.of(name));
+            // Use sanitized key to match the key used in addMarker
+            String sanitizedKey = sanitizeKey(name, id);
+            dominionProvider.removeMarker(Key.of(sanitizedKey));
             // Re-register the layer to apply changes
             mapWorld.layerRegistry().unregister(Key.of(set));
             mapWorld.layerRegistry().register(Key.of(set), dominionProvider);
