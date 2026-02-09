@@ -32,6 +32,14 @@ public class SquareMap implements MapProvider {
         }
         // Replace any character that is not [a-zA-Z0-9._-] with an underscore
         String sanitized = input.replaceAll("[^a-zA-Z0-9._-]", "_");
+        // Collapse consecutive underscores into a single underscore
+        sanitized = sanitized.replaceAll("_+", "_");
+        // Trim leading and trailing underscores
+        sanitized = sanitized.replaceAll("^_+|_+$", "");
+        // If the result is empty, use a default prefix
+        if (sanitized.isEmpty()) {
+            sanitized = "dominion";
+        }
         // Ensure the key is unique by appending the ID
         return sanitized + "_" + id;
     }
