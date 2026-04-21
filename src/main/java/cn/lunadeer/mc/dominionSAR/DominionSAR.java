@@ -3,7 +3,7 @@ package cn.lunadeer.mc.dominionSAR;
 import cn.lunadeer.dominion.api.DominionAPI;
 import cn.lunadeer.dominion.api.dtos.flag.EnvFlag;
 import cn.lunadeer.dominion.api.dtos.flag.Flags;
-import cn.lunadeer.mc.dominionSAR.providers.BlueMap;
+import cn.lunadeer.mc.dominionSAR.providers.BlueMapApiMode;
 import cn.lunadeer.mc.dominionSAR.providers.Dynmap;
 import cn.lunadeer.mc.dominionSAR.providers.Pl3xMap;
 import cn.lunadeer.mc.dominionSAR.providers.SquareMap;
@@ -46,8 +46,8 @@ public final class DominionSAR extends JavaPlugin {
         // register events
         Bukkit.getPluginManager().registerEvents(new EventsHandler(), this);
         // initialize providers
-        if (Configuration.mapProvider.blueMap) {
-            mapProviders.add(new BlueMap());
+        if (Configuration.getBluemapMode() == Configuration.BluemapMode.API) {
+            mapProviders.add(new BlueMapApiMode());
         }
         if (Configuration.mapProvider.dynmap) {
             mapProviders.add(new Dynmap());

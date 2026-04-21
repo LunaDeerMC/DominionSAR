@@ -12,7 +12,7 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class BlueMap implements MapProvider {
+public class BlueMapApiMode implements MapProvider {
 
     private static final double SHAPE_OFFSET = 0.001;
 

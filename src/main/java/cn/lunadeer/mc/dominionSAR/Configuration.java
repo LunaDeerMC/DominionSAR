@@ -8,7 +8,7 @@ public class Configuration extends ConfigurationFile {
 
     public static class MapProvider extends ConfigurationPart {
         @Comments("https://bluemap.bluecolored.de/")
-        public boolean blueMap = false;
+        public BlueMap blueMap = new BlueMap();
 
         @Comments("https://www.spigotmc.org/resources/dynmap%C2%AE.274/")
         public boolean dynmap = false;
@@ -21,5 +21,34 @@ public class Configuration extends ConfigurationFile {
     }
 
     public static MapProvider mapProvider = new MapProvider();
+
+    public static class BlueMap extends ConfigurationPart {
+        @Comments({
+            "disable: Disable the BlueMap integration. This is the default value.",
+            "api: If you deploy BlueMap on the same server, you can set this to 'api' to let the plugin hook into BlueMap's API automatically. This is the recommended way to use BlueMap with this plugin, as it will automatically update the markers when the plugin updates them.",
+            "standalone: If you deploy BlueMap on a different server, you can set this to 'standalone' to let the plugin save the markers as json files, which can be used by BlueMap's marker API. This is useful if you deploy Bluemap on a different server."
+        })
+        public String mode = "disable"; // disable, standalone, api
+
+        @Comments("The path to save the json files. It can be an absolute path or a path relative to the server root directory.")
+        public String path = "./bluemap-markers";
+    }
+
+    public static enum BluemapMode {
+        DISABLE,
+        API,
+        STANDALONE
+    }
+
+    public static BluemapMode getBluemapMode() {
+        switch (Configuration.mapProvider.blueMap.mode.toLowerCase()) {
+            case "api":
+                return BluemapMode.API;
+            case "standalone":
+                return BluemapMode.STANDALONE;
+            default:
+                return BluemapMode.DISABLE;
+        }
+    }
 
 }
