@@ -34,21 +34,18 @@ public class Configuration extends ConfigurationFile {
         public String path = "./bluemap-markers";
     }
 
-    public static enum BluemapMode {
+    public static enum BlueMapMode {
         DISABLE,
         API,
         STANDALONE
     }
 
-    public static BluemapMode getBluemapMode() {
-        switch (Configuration.mapProvider.blueMap.mode.toLowerCase()) {
-            case "api":
-                return BluemapMode.API;
-            case "standalone":
-                return BluemapMode.STANDALONE;
-            default:
-                return BluemapMode.DISABLE;
-        }
+    public static BlueMapMode getBluemapMode() {
+        return switch (Configuration.mapProvider.blueMap.mode.toLowerCase()) {
+            case "api" -> BlueMapMode.API;
+            case "standalone" -> BlueMapMode.STANDALONE;
+            default -> BlueMapMode.DISABLE;
+        };
     }
 
 }

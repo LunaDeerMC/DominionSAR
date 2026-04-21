@@ -47,9 +47,9 @@ public final class DominionSAR extends JavaPlugin {
         // register events
         Bukkit.getPluginManager().registerEvents(new EventsHandler(), this);
         // initialize providers
-        if (Configuration.getBluemapMode() == Configuration.BluemapMode.API) {
+        if (Configuration.getBluemapMode() == Configuration.BlueMapMode.API) {
             mapProviders.add(new BlueMapApiMode());
-        } else if (Configuration.getBluemapMode() == Configuration.BluemapMode.STANDALONE) {
+        } else if (Configuration.getBluemapMode() == Configuration.BlueMapMode.STANDALONE) {
             mapProviders.add(new BlueMapStandaloneMode());
         }
         if (Configuration.mapProvider.dynmap) {
