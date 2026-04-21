@@ -48,4 +48,5 @@ public class Configuration extends ConfigurationFile {
         };
     }
 
+    public static boolean renderMcaWhiteList = false;
 }

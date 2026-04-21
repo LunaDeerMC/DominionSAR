@@ -31,7 +31,7 @@ DominionSAR supports integration with the following web map plugins:
 - **Java**: 21+
 - **Server Software**: Bukkit, Spigot, Paper, or Folia
 - **Dependencies**:
-  - [Dominion](https://github.com/LunaDeerMC/Dominion) (**4.7.0+** Required)
+  - [Dominion](https://github.com/LunaDeerMC/Dominion) (**4.8.1+** Required)
   - At least one supported map plugin (Optional but recommended)
 
 ## Installation

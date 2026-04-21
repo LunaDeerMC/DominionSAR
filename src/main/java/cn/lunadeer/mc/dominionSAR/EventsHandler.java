@@ -1,10 +1,14 @@
 package cn.lunadeer.mc.dominionSAR;
 
+import cn.lunadeer.dominion.api.dtos.CuboidDTO;
 import cn.lunadeer.dominion.api.dtos.DominionDTO;
+import cn.lunadeer.dominion.events.ExportMcaListEvent;
 import cn.lunadeer.dominion.events.dominion.DominionCreateEvent;
 import cn.lunadeer.dominion.events.dominion.DominionDeleteEvent;
 import cn.lunadeer.dominion.events.dominion.modify.DominionReSizeEvent;
 import cn.lunadeer.dominion.events.dominion.modify.DominionRenameEvent;
+import cn.lunadeer.dominion.utils.McaRecord;
+import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -21,6 +25,25 @@ public class EventsHandler implements Listener {
             Color border = new Color(dominion.getColorR(), dominion.getColorG(), dominion.getColorB(), 160);
             provider.addMarker(dominion.getId(), dominion.getWorld(), "Dominion",
                     dominion.getName(), dominion.getOwnerDTO().getLastKnownName(), dominion.getCuboid(), inner, border);
+        }
+    }
+
+    private static void renderMcaSquare(McaRecord mcaRecord) {
+        for (MapProvider provider : DominionSAR.getInstance().getMapProviders()) {
+            Color inner = new Color(177, 255, 118, 118);
+            Color border = new Color(9, 85, 18, 255);
+            World bukkitWorld = DominionSAR.getInstance().getServer().getWorld(mcaRecord.world());
+            CuboidDTO mcaCuboid = new CuboidDTO(
+                    mcaRecord.x() * 512,
+                    254,
+                    mcaRecord.z() * 512,
+                    mcaRecord.x() * 512 + 511,
+                    255,
+                    mcaRecord.z() * 512 + 511
+            );
+            provider.addMarker(mcaRecord.hashCode(), bukkitWorld, "MCA",
+                    "r." + mcaRecord.x() + "." + mcaRecord.z(), "",
+                    mcaCuboid, inner, border);
         }
     }
 
@@ -73,5 +96,13 @@ public class EventsHandler implements Listener {
             if (dominion.getWorld() == null) return;
             renderDominion(dominion);
         });
+    }
+
+    @EventHandler
+    public void onExportedMca(ExportMcaListEvent event) {
+        if (!Configuration.renderMcaWhiteList) return;
+        for (McaRecord mcaRecord : event.getList()) {
+            renderMcaSquare(mcaRecord);
+        }
     }
 }
