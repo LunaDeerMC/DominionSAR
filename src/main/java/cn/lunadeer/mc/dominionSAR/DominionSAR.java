@@ -4,6 +4,7 @@ import cn.lunadeer.dominion.api.DominionAPI;
 import cn.lunadeer.dominion.api.dtos.flag.EnvFlag;
 import cn.lunadeer.dominion.api.dtos.flag.Flags;
 import cn.lunadeer.mc.dominionSAR.providers.BlueMapApiMode;
+import cn.lunadeer.mc.dominionSAR.providers.BlueMapStandaloneMode;
 import cn.lunadeer.mc.dominionSAR.providers.Dynmap;
 import cn.lunadeer.mc.dominionSAR.providers.Pl3xMap;
 import cn.lunadeer.mc.dominionSAR.providers.SquareMap;
@@ -48,6 +49,8 @@ public final class DominionSAR extends JavaPlugin {
         // initialize providers
         if (Configuration.getBluemapMode() == Configuration.BluemapMode.API) {
             mapProviders.add(new BlueMapApiMode());
+        } else if (Configuration.getBluemapMode() == Configuration.BluemapMode.STANDALONE) {
+            mapProviders.add(new BlueMapStandaloneMode());
         }
         if (Configuration.mapProvider.dynmap) {
             mapProviders.add(new Dynmap());

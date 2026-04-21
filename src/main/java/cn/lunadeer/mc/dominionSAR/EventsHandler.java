@@ -56,7 +56,7 @@ public class EventsHandler implements Listener {
         removeDominion(event.getDominion());
         event.afterModified(newDom -> {
             if (newDom == null) return;
-            removeDominion(newDom);
+            renderDominion(newDom);
         });
     }
 

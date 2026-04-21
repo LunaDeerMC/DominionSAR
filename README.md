@@ -50,7 +50,12 @@ The plugin creates a `config.yml` file in the `plugins/DominionSAR/` directory:
 ```yaml
 mapProvider:
   # https://bluemap.bluecolored.de/
-  blueMap: false
+  blueMap:
+    # disable, api, standalone
+    mode: disable
+
+    # Used by standalone mode. DominionSAR exports markers to <path>/<world>/markers.json
+    path: ./bluemap-markers
   
   # https://www.spigotmc.org/resources/dynmap%C2%AE.274/
   dynmap: false
@@ -64,12 +69,19 @@ mapProvider:
 
 ### Configuration Options
 
-- **`mapProvider.blueMap`**: Enable BlueMap integration
+- **`mapProvider.blueMap.mode`**: `disable`, `api`, or `standalone`
+- **`mapProvider.blueMap.path`**: Base directory for standalone `markers.json` exports
 - **`mapProvider.dynmap`**: Enable Dynmap integration
 - **`mapProvider.squareMap`**: Enable SquareMap integration
 - **`mapProvider.pl3xMap`**: Enable Pl3xMap integration
 
-Set the corresponding option to `true` for each map plugin you want to integrate with.
+For BlueMap:
+- Use `api` when BlueMap runs on the same server.
+- Use `standalone` when DominionSAR should export marker JSON files for another BlueMap deployment.
+
+When using `standalone`, DominionSAR writes one file per world at `<path>/<world>/markers.json`. Point each BlueMap map's `markerFile` to the exported file for that world.
+
+Set the corresponding boolean option to `true` for each non-BlueMap map plugin you want to integrate with.
 
 ## Usage
 

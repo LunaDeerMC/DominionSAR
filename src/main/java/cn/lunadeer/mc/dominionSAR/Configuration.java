@@ -30,7 +30,7 @@ public class Configuration extends ConfigurationFile {
         })
         public String mode = "disable"; // disable, standalone, api
 
-        @Comments("The path to save the json files. It can be an absolute path or a path relative to the server root directory.")
+        @Comments("The base directory to save standalone json files. Each world is exported to <path>/<world>/markers.json. It can be an absolute path or a path relative to the server root directory.")
         public String path = "./bluemap-markers";
     }
 

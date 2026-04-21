@@ -2,62 +2,58 @@ package cn.lunadeer.mc.dominionSAR.providers;
 
 import cn.lunadeer.dominion.api.dtos.CuboidDTO;
 import cn.lunadeer.mc.dominionSAR.MapProvider;
+import cn.lunadeer.mc.dominionSAR.providers.bluemap.BlueMapMarkerSupport;
 import com.flowpowered.math.vector.Vector2d;
+import com.flowpowered.math.vector.Vector3d;
 import de.bluecolored.bluemap.api.BlueMapAPI;
 import de.bluecolored.bluemap.api.markers.ExtrudeMarker;
 import de.bluecolored.bluemap.api.markers.MarkerSet;
 import org.bukkit.World;
 
 import java.awt.*;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 public class BlueMapApiMode implements MapProvider {
-
-    private static final double SHAPE_OFFSET = 0.001;
 
     @Override
     public void addMarker(int id, World world, String set, String name, String subInfo, CuboidDTO cuboid, Color innerColor, Color borderColor) {
         BlueMapAPI.getInstance()
                 .flatMap(api -> api.getWorld(world)).ifPresent(blueMapWorld -> {
                     blueMapWorld.getMaps().forEach(map -> {
-                        // get marker set, create if not exists
+                        BlueMapMarkerSupport.MarkerSetDefinition markerSetDefinition = BlueMapMarkerSupport.createMarkerSet(set);
                         MarkerSet blueMapSet = map.getMarkerSets().get(set);
                         if (blueMapSet == null) {
                             blueMapSet = MarkerSet.builder()
-                                    .label(set)
-                                    .defaultHidden(true)
+                                    .label(markerSetDefinition.label())
+                                    .toggleable(markerSetDefinition.toggleable())
+                                    .defaultHidden(markerSetDefinition.defaultHidden())
+                                    .sorting(markerSetDefinition.sorting())
                                     .build();
                             map.getMarkerSets().put(set, blueMapSet);
                         }
-                        // render content
-                        de.bluecolored.bluemap.api.math.Shape shape = createRectangularShape(
-                                cuboid.x1(), cuboid.z1(),
-                                cuboid.x2(), cuboid.z2()
+                        BlueMapMarkerSupport.ExtrudeMarkerDefinition markerDefinition = BlueMapMarkerSupport.createExtrudeMarker(
+                                id,
+                                name,
+                                subInfo,
+                                cuboid,
+                                innerColor,
+                                borderColor
                         );
 
-                        de.bluecolored.bluemap.api.math.Color lineColor =
-                                new de.bluecolored.bluemap.api.math.Color(
-                                        innerColor.getRed(),
-                                        innerColor.getGreen(),
-                                        innerColor.getBlue(),
-                                        innerColor.getAlpha() / 255F
-                                );
-                        de.bluecolored.bluemap.api.math.Color fillColor =
-                                new de.bluecolored.bluemap.api.math.Color(
-                                        borderColor.getRed(),
-                                        borderColor.getGreen(),
-                                        borderColor.getBlue(),
-                                        borderColor.getAlpha() / 255F
-                                );
-
                         ExtrudeMarker marker = ExtrudeMarker.builder()
-                                .label(name)
-                                .detail(subInfo)
-                                .position(cuboid.x1() + SHAPE_OFFSET, cuboid.y1(), cuboid.z1() + SHAPE_OFFSET)
-                                .shape(shape, cuboid.y1() + (float) SHAPE_OFFSET, cuboid.y2() - (float) SHAPE_OFFSET)
-                                .lineColor(lineColor)
-                                .fillColor(fillColor)
+                                .label(markerDefinition.label())
+                                .detail(markerDefinition.detail())
+                                .position(new Vector3d(
+                                        markerDefinition.position().x(),
+                                        markerDefinition.position().y(),
+                                        markerDefinition.position().z()
+                                ))
+                                .shape(createShape(markerDefinition.shape()), markerDefinition.shapeMinY(), markerDefinition.shapeMaxY())
+                                .depthTestEnabled(markerDefinition.depthTest())
+                                .lineWidth(markerDefinition.lineWidth())
+                                .lineColor(toBlueMapColor(markerDefinition.lineColor()))
+                                .fillColor(toBlueMapColor(markerDefinition.fillColor()))
                                 .build();
                         blueMapSet.getMarkers().put(String.valueOf(id), marker);
                     });
@@ -76,13 +72,19 @@ public class BlueMapApiMode implements MapProvider {
                 });
     }
 
-    private de.bluecolored.bluemap.api.math.Shape createRectangularShape(double x1, double z1, double x2, double z2) {
-        Collection<Vector2d> vectors = Arrays.asList(
-                new Vector2d(x1 + SHAPE_OFFSET, z1 + SHAPE_OFFSET),
-                new Vector2d(x2 - SHAPE_OFFSET, z1 + SHAPE_OFFSET),
-                new Vector2d(x2 - SHAPE_OFFSET, z2 - SHAPE_OFFSET),
-                new Vector2d(x1 + SHAPE_OFFSET, z2 - SHAPE_OFFSET)
-        );
+        private de.bluecolored.bluemap.api.math.Shape createShape(List<BlueMapMarkerSupport.ShapePoint> points) {
+                Collection<Vector2d> vectors = points.stream()
+                                .map(point -> new Vector2d(point.x(), point.z()))
+                                .toList();
         return new de.bluecolored.bluemap.api.math.Shape(vectors);
     }
+
+        private de.bluecolored.bluemap.api.math.Color toBlueMapColor(BlueMapMarkerSupport.ColorValue color) {
+                return new de.bluecolored.bluemap.api.math.Color(
+                                color.r(),
+                                color.g(),
+                                color.b(),
+                                color.a()
+                );
+        }
 }
