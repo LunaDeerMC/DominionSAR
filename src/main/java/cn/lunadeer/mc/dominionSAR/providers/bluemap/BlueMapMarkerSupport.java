@@ -15,7 +15,7 @@ public final class BlueMapMarkerSupport {
     }
 
     public static MarkerSetDefinition createMarkerSet(String label) {
-        return new MarkerSetDefinition(label, true, true, 0);
+        return new MarkerSetDefinition(label, true, false, 0);
     }
 
     public static ExtrudeMarkerDefinition createExtrudeMarker(int id,
@@ -30,9 +30,9 @@ public final class BlueMapMarkerSupport {
                 String.valueOf(id),
                 "extrude",
                 new Position(
-                        (bounds.minX + bounds.maxX) / 2D,
-                        (bounds.minY + bounds.maxY) / 2D,
-                        (bounds.minZ + bounds.maxZ) / 2D
+                        bounds.minX,
+                        bounds.minY,
+                        bounds.minZ
                 ),
                 name,
                 List.of(

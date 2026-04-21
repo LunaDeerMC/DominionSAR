@@ -3,12 +3,9 @@ package cn.lunadeer.mc.dominionSAR;
 import cn.lunadeer.dominion.api.DominionAPI;
 import cn.lunadeer.dominion.api.dtos.flag.EnvFlag;
 import cn.lunadeer.dominion.api.dtos.flag.Flags;
-import cn.lunadeer.mc.dominionSAR.providers.BlueMapApiMode;
-import cn.lunadeer.mc.dominionSAR.providers.BlueMapStandaloneMode;
-import cn.lunadeer.mc.dominionSAR.providers.Dynmap;
-import cn.lunadeer.mc.dominionSAR.providers.Pl3xMap;
-import cn.lunadeer.mc.dominionSAR.providers.SquareMap;
+import cn.lunadeer.mc.dominionSAR.providers.*;
 import cn.lunadeer.mc.dominionSAR.utils.configuration.ConfigurationManager;
+import cn.lunadeer.mc.dominionSAR.utils.scheduler.Scheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -16,6 +13,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static cn.lunadeer.mc.dominionSAR.EventsHandler.renderDominion;
 
 public final class DominionSAR extends JavaPlugin {
 
@@ -36,6 +35,7 @@ public final class DominionSAR extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         instance = this;
+        new Scheduler(this);
         // prepare config
         try {
             ConfigurationManager.load(Configuration.class, new File(getDataFolder(), "config.yml"));
@@ -69,6 +69,12 @@ public final class DominionSAR extends JavaPlugin {
             e.printStackTrace();
             Bukkit.getPluginManager().disablePlugin(this);
         }
+
+        Scheduler.runTaskLaterAsync(() ->
+                DominionSAR.getDominionAPI().getAllDominions().forEach(dominion -> {
+            if (dominion.getWorld() == null) return;
+            renderDominion(dominion);
+        }), 30 * 20L); // Delay initialization by 1 second to ensure all plugins are loaded
     }
 
     public List<MapProvider> getMapProviders() {

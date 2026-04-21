@@ -18,7 +18,7 @@ import java.awt.*;
 
 public class EventsHandler implements Listener {
 
-    private static void renderDominion(DominionDTO dominion) {
+    public static void renderDominion(DominionDTO dominion) {
         if (!dominion.getEnvFlagValue(DominionSAR.SHOW_ON_WEB)) return;    // Skip if user disabled it
         for (MapProvider provider : DominionSAR.getInstance().getMapProviders()) {
             Color inner = new Color(dominion.getColorR(), dominion.getColorG(), dominion.getColorB(), 40);
@@ -88,14 +88,6 @@ public class EventsHandler implements Listener {
         if (event.isCancelled()) return;
         if (event.getDominion().getWorld() == null) return;
         removeDominion(event.getDominion());
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onWorldLoaded(ServerLoadEvent event) {
-        DominionSAR.getDominionAPI().getAllDominions().forEach(dominion -> {
-            if (dominion.getWorld() == null) return;
-            renderDominion(dominion);
-        });
     }
 
     @EventHandler
