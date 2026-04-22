@@ -34,6 +34,8 @@ public class Configuration extends ConfigurationFile {
         public String path = "./bluemap-markers";
     }
 
+    public static String labelInfo = "<div>领地名: %dominion_name%</div><div>所有人：%owner%</div>";
+
     public static enum BlueMapMode {
         DISABLE,
         API,

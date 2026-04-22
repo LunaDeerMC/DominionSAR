@@ -24,7 +24,9 @@ public class EventsHandler implements Listener {
             Color inner = new Color(dominion.getColorR(), dominion.getColorG(), dominion.getColorB(), 40);
             Color border = new Color(dominion.getColorR(), dominion.getColorG(), dominion.getColorB(), 160);
             provider.addMarker(dominion.getId(), dominion.getWorld(), "Dominion",
-                    dominion.getName(), dominion.getOwnerDTO().getLastKnownName(), dominion.getCuboid(), inner, border);
+                    dominion.getName(),
+                    Configuration.labelInfo.replace("%dominion_name%", dominion.getName()).replace("%owner%", dominion.getOwnerDTO().getLastKnownName()),
+                    dominion.getCuboid(), inner, border);
         }
     }
 
@@ -41,8 +43,9 @@ public class EventsHandler implements Listener {
                     255,
                     mcaRecord.z() * 512 + 511
             );
-            provider.addMarker(mcaRecord.hashCode(), bukkitWorld, "MCA",
-                    "r." + mcaRecord.x() + "." + mcaRecord.z(), "",
+            String fileName = "r." + mcaRecord.x() + "." + mcaRecord.z() + ".mca";
+            provider.addMarker(mcaRecord.hashCode(), bukkitWorld, "MCA-whitelist",
+                    fileName, fileName,
                     mcaCuboid, inner, border);
         }
     }
