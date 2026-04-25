@@ -39,17 +39,17 @@ public class EventsHandler implements Listener {
                 Color inner = new Color(177, 255, 118, 118);
                 Color border = new Color(9, 85, 18, 255);
                 World bukkitWorld = DominionSAR.getInstance().getServer().getWorld(mcaRecord.world());
-                CuboidDTO mcaCuboid = new CuboidDTO(
-                        mcaRecord.x() * 512,
-                        254,
-                        mcaRecord.z() * 512,
-                        mcaRecord.x() * 512 + 511,
-                        255,
-                        mcaRecord.z() * 512 + 511);
+                List<Point> vertices = List.of(
+                        new Point(mcaRecord.x() * 512, mcaRecord.z() * 512),
+                        new Point(mcaRecord.x() * 512 + 511, mcaRecord.z() * 512),
+                        new Point(mcaRecord.x() * 512 + 511, mcaRecord.z() * 512 + 511),
+                        new Point(mcaRecord.x() * 512, mcaRecord.z() * 512 + 511)
+                );
                 String fileName = "r." + mcaRecord.x() + "." + mcaRecord.z() + ".mca";
-                provider.addMarker(mcaRecord.hashCode(), bukkitWorld, "MCA-whitelist",
+                provider.addPolygonMarker(mcaRecord.hashCode(), bukkitWorld, "MCA-whitelist",
                         fileName, fileName,
-                        mcaCuboid, inner, border);
+                        vertices,
+                        inner, border);
             }
         }
     }
