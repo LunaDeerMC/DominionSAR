@@ -4,6 +4,7 @@ import cn.lunadeer.dominion.api.dtos.CuboidDTO;
 import org.bukkit.World;
 
 import java.awt.*;
+import java.util.List;
 
 public interface MapProvider {
 
@@ -15,6 +16,15 @@ public interface MapProvider {
                    CuboidDTO cuboid,
                    Color innerColor,
                    Color borderColor);
+
+    void addPolygonMarker(int id,
+                          World world,
+                          String set,
+                          String name,
+                          String subInfo,
+                          List<Point> vertices,
+                          Color innerColor,
+                          Color borderColor);
 
     void removeMarker(int id, World world, String set, String name);
 }

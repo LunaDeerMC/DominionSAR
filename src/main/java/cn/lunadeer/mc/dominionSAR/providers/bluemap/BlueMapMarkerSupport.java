@@ -3,6 +3,7 @@ package cn.lunadeer.mc.dominionSAR.providers.bluemap;
 import cn.lunadeer.dominion.api.dtos.CuboidDTO;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.util.List;
 
 public final class BlueMapMarkerSupport {
@@ -19,40 +20,101 @@ public final class BlueMapMarkerSupport {
     }
 
     public static ExtrudeMarkerDefinition createExtrudeMarker(int id,
-                                                              String name,
-                                                              String detail,
-                                                              CuboidDTO cuboid,
-                                                              Color fillColor,
-                                                              Color lineColor) {
-        Bounds bounds = createBounds(cuboid);
+                                  String name,
+                                  String detail,
+                                  CuboidDTO cuboid,
+                                  Color fillColor,
+                                  Color lineColor) {
+    Bounds bounds = createBounds(cuboid);
 
-        return new ExtrudeMarkerDefinition(
-                String.valueOf(id),
-                "extrude",
-                new Position(
-                        bounds.minX,
-                        bounds.minY,
-                        bounds.minZ
-                ),
-                name,
-                List.of(
-                        new ShapePoint(bounds.minX, bounds.minZ),
-                        new ShapePoint(bounds.maxX, bounds.minZ),
-                        new ShapePoint(bounds.maxX, bounds.maxZ),
-                        new ShapePoint(bounds.minX, bounds.maxZ)
-                ),
-                List.of(),
-                bounds.minY,
-                bounds.maxY,
-                detail,
-                false,
-                true,
-                DEFAULT_LINE_WIDTH,
-                toColorValue(lineColor),
-                toColorValue(fillColor),
-                0,
-                true
-        );
+    return createExtrudeMarker(
+        id,
+        name,
+        detail,
+        List.of(
+            new ShapePoint(bounds.minX, bounds.minZ),
+            new ShapePoint(bounds.maxX, bounds.minZ),
+            new ShapePoint(bounds.maxX, bounds.maxZ),
+            new ShapePoint(bounds.minX, bounds.maxZ)
+        ),
+        bounds.minY,
+        bounds.maxY,
+        fillColor,
+        lineColor
+    );
+    }
+
+    public static ShapeMarkerDefinition createShapeMarker(int id,
+                              String name,
+                              String detail,
+                              List<Point> vertices,
+                              float shapeY,
+                              Color fillColor,
+                              Color lineColor) {
+    List<ShapePoint> shape = vertices.stream()
+        .map(vertex -> new ShapePoint(vertex.getX(), vertex.getY()))
+        .toList();
+    double minX = shape.stream().mapToDouble(ShapePoint::x).min().orElse(0D);
+    double maxX = shape.stream().mapToDouble(ShapePoint::x).max().orElse(0D);
+    double minZ = shape.stream().mapToDouble(ShapePoint::z).min().orElse(0D);
+    double maxZ = shape.stream().mapToDouble(ShapePoint::z).max().orElse(0D);
+
+    return new ShapeMarkerDefinition(
+        String.valueOf(id),
+        "shape",
+        new Position(
+            (minX + maxX) * 0.5D,
+            shapeY,
+            (minZ + maxZ) * 0.5D
+        ),
+        name,
+        shape,
+        List.of(),
+        shapeY,
+        detail,
+        false,
+        false,
+        DEFAULT_LINE_WIDTH,
+        toColorValue(lineColor),
+        toColorValue(fillColor),
+        0,
+        true
+    );
+    }
+
+    private static ExtrudeMarkerDefinition createExtrudeMarker(int id,
+                                   String name,
+                                   String detail,
+                                   List<ShapePoint> shape,
+                                   float minY,
+                                   float maxY,
+                                   Color fillColor,
+                                   Color lineColor) {
+    double minX = shape.stream().mapToDouble(ShapePoint::x).min().orElse(0D);
+    double minZ = shape.stream().mapToDouble(ShapePoint::z).min().orElse(0D);
+
+    return new ExtrudeMarkerDefinition(
+        String.valueOf(id),
+        "extrude",
+        new Position(
+            minX,
+            minY,
+            minZ
+        ),
+        name,
+        shape,
+        List.of(),
+        minY,
+        maxY,
+        detail,
+        false,
+        true,
+        DEFAULT_LINE_WIDTH,
+        toColorValue(lineColor),
+        toColorValue(fillColor),
+        0,
+        true
+    );
     }
 
     private static Bounds createBounds(CuboidDTO cuboid) {
@@ -82,7 +144,7 @@ public final class BlueMapMarkerSupport {
                 color.getRed(),
                 color.getGreen(),
                 color.getBlue(),
-                color.getAlpha() / 255F
+            color.getAlpha() / 255F
         );
     }
 
@@ -90,21 +152,38 @@ public final class BlueMapMarkerSupport {
     }
 
     public record ExtrudeMarkerDefinition(String id,
-                                          String type,
-                                          Position position,
-                                          String label,
-                                          List<ShapePoint> shape,
-                                          List<List<ShapePoint>> holes,
-                                          float shapeMinY,
-                                          float shapeMaxY,
-                                          String detail,
-                                          boolean newTab,
-                                          boolean depthTest,
-                                          int lineWidth,
-                                          ColorValue lineColor,
-                                          ColorValue fillColor,
-                                          int sorting,
-                                          boolean listed) {
+                          String type,
+                          Position position,
+                          String label,
+                          List<ShapePoint> shape,
+                          List<List<ShapePoint>> holes,
+                          float shapeMinY,
+                          float shapeMaxY,
+                          String detail,
+                          boolean newTab,
+                          boolean depthTest,
+                          int lineWidth,
+                          ColorValue lineColor,
+                          ColorValue fillColor,
+                          int sorting,
+                          boolean listed) {
+    }
+
+    public record ShapeMarkerDefinition(String id,
+                        String type,
+                        Position position,
+                        String label,
+                        List<ShapePoint> shape,
+                        List<List<ShapePoint>> holes,
+                        float shapeY,
+                        String detail,
+                        boolean newTab,
+                        boolean depthTest,
+                        int lineWidth,
+                        ColorValue lineColor,
+                        ColorValue fillColor,
+                        int sorting,
+                        boolean listed) {
     }
 
     public record Position(double x, double y, double z) {

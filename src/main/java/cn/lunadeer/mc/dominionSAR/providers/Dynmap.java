@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
+import java.util.List;
 
 public class Dynmap extends DynmapCommonAPIListener implements MapProvider {
 
@@ -52,6 +53,34 @@ public class Dynmap extends DynmapCommonAPIListener implements MapProvider {
                     false
             );
             // Apply styling
+            marker.setFillStyle(DEFAULT_FILL_OPACITY, innerColor.getRGB());
+            marker.setLineStyle(DEFAULT_LINE_WEIGHT, DEFAULT_LINE_OPACITY, borderColor.getRGB());
+        }
+    }
+
+    @Override
+    public void addPolygonMarker(int id,
+                                 World world,
+                                 String set,
+                                 String name,
+                                 String subInfo,
+                                 List<Point> vertices,
+                                 Color innerColor,
+                                 Color borderColor) {
+        double[] xCoordinates = vertices.stream().mapToDouble(Point::getX).toArray();
+        double[] zCoordinates = vertices.stream().mapToDouble(Point::getY).toArray();
+
+        MarkerSet markerSet = getOrCreateMarkerSet(set, set);
+        if (markerSet != null) {
+            AreaMarker marker = markerSet.createAreaMarker(
+                    String.valueOf(id),
+                    name + "(" + subInfo + ")",
+                    true,
+                    world.getName(),
+                    xCoordinates,
+                    zCoordinates,
+                    false
+            );
             marker.setFillStyle(DEFAULT_FILL_OPACITY, innerColor.getRGB());
             marker.setLineStyle(DEFAULT_LINE_WEIGHT, DEFAULT_LINE_OPACITY, borderColor.getRGB());
         }

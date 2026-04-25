@@ -17,9 +17,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class BlueMapStandaloneMode implements MapProvider {
+
+    private static final float MIN_POLYGON_Y = 255.0F;
 
     private final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
@@ -49,6 +52,31 @@ public class BlueMapStandaloneMode implements MapProvider {
                 name,
                 subInfo,
                 cuboid,
+                innerColor,
+                borderColor
+        );
+        markerSet.markers.put(marker.id(), marker);
+        flushWorld(world.getName(), worldMarkerSets);
+    }
+
+    @Override
+    public synchronized void addPolygonMarker(int id,
+                                              World world,
+                                              String set,
+                                              String name,
+                                              String subInfo,
+                                              List<java.awt.Point> vertices,
+                                              Color innerColor,
+                                              Color borderColor) {
+        Map<String, StandaloneMarkerSet> worldMarkerSets = markersByWorld.computeIfAbsent(world.getName(), key -> new LinkedHashMap<>());
+        StandaloneMarkerSet markerSet = worldMarkerSets.computeIfAbsent(set, key -> new StandaloneMarkerSet(BlueMapMarkerSupport.createMarkerSet(set)));
+        float shapeY = Math.max(MIN_POLYGON_Y, world.getMaxHeight() - 1.0F);
+        BlueMapMarkerSupport.ShapeMarkerDefinition marker = BlueMapMarkerSupport.createShapeMarker(
+                id,
+                name,
+                subInfo,
+                vertices,
+            shapeY,
                 innerColor,
                 borderColor
         );
@@ -93,12 +121,13 @@ public class BlueMapStandaloneMode implements MapProvider {
         return Path.of(Configuration.mapProvider.blueMap.path).toAbsolutePath().normalize();
     }
 
+    @SuppressWarnings("unused")
     private static final class StandaloneMarkerSet {
         private final String label;
         private final boolean toggleable;
         private final boolean defaultHidden;
         private final int sorting;
-        private final Map<String, BlueMapMarkerSupport.ExtrudeMarkerDefinition> markers = new LinkedHashMap<>();
+        private final Map<String, Object> markers = new LinkedHashMap<>();
 
         private StandaloneMarkerSet(BlueMapMarkerSupport.MarkerSetDefinition markerSet) {
             this.label = markerSet.label();

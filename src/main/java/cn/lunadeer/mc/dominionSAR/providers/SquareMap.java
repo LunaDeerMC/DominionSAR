@@ -9,6 +9,7 @@ import xyz.jpenilla.squaremap.api.marker.Marker;
 import xyz.jpenilla.squaremap.api.marker.MarkerOptions;
 
 import java.awt.*;
+import java.util.List;
 
 public class SquareMap implements MapProvider {
 
@@ -70,6 +71,45 @@ public class SquareMap implements MapProvider {
             dominionProvider.addMarker(Key.of(sanitizedKey), marker);
 
             // Re-register the layer to apply changes
+            if (mapWorld.layerRegistry().hasEntry(Key.of(set))) {
+                mapWorld.layerRegistry().unregister(Key.of(set));
+            }
+            mapWorld.layerRegistry().register(Key.of(set), dominionProvider);
+        });
+    }
+
+    @Override
+    public void addPolygonMarker(int id,
+                                 World world,
+                                 String set,
+                                 String name,
+                                 String subInfo,
+                                 List<java.awt.Point> vertices,
+                                 Color innerColor,
+                                 Color borderColor) {
+        api.getWorldIfEnabled(BukkitAdapter.worldIdentifier(world)).ifPresent(mapWorld -> {
+            SimpleLayerProvider dominionProvider;
+            if (!mapWorld.layerRegistry().hasEntry(Key.of(set))) {
+                dominionProvider = SimpleLayerProvider.builder(set).build();
+            } else {
+                dominionProvider = (SimpleLayerProvider) mapWorld.layerRegistry().get(Key.of(set));
+            }
+
+            List<Point> polygonVertices = vertices.stream()
+                    .map(vertex -> Point.of(vertex.getX(), vertex.getY()))
+                    .toList();
+
+            MarkerOptions options = MarkerOptions.builder()
+                    .fillColor(innerColor).fillOpacity(0.2)
+                    .strokeColor(borderColor).strokeOpacity(0.8)
+                    .build();
+
+            Marker marker = Marker.polygon(polygonVertices).markerOptions(options);
+
+            String sanitizedKey = sanitizeKey(name, id);
+            dominionProvider.removeMarker(Key.of(sanitizedKey));
+            dominionProvider.addMarker(Key.of(sanitizedKey), marker);
+
             if (mapWorld.layerRegistry().hasEntry(Key.of(set))) {
                 mapWorld.layerRegistry().unregister(Key.of(set));
             }
