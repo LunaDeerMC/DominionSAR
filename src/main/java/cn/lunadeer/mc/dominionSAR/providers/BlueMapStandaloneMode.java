@@ -104,6 +104,11 @@ public class BlueMapStandaloneMode implements MapProvider {
             Path tempFile = Files.createTempFile(markerFile.getParent(), "markers-", ".json.tmp");
             Files.writeString(tempFile, gson.toJson(markerSets), StandardCharsets.UTF_8);
             moveIntoPlace(tempFile, markerFile);
+            MarkerSet marker = MarkerGson.INSTANCE.fromJson(gson.toJsonTree(markerSets.get("Dominion")), MarkerSet.class);
+            BlueMapAPI.getInstance().flatMap(api ->
+                    api.getMap(worldName)).ifPresent(map -> {
+                map.getMarkerSets().put("Dominion", marker);
+            });
         } catch (IOException e) {
             DominionSAR.getInstance().getLogger().warning("Failed to write BlueMap standalone markers for world '" + worldName + "': " + e.getMessage());
         }
